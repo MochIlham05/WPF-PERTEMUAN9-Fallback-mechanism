@@ -1,0 +1,40 @@
+{
+  "name": "uts-wpf-encryption-restapi",
+  "version": "1.0.0",
+  "description": "Implementasi Enkripsi-Dekripsi REST API dengan Node.js Express, MySQL, dan AES-256-CBC",
+  "main": "server1.js",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "start:server1": "node server1.js",
+    "start:server2": "node server2.js",
+    "dev:server1": "nodemon server1.js",
+    "dev:server2": "nodemon server2.js"
+  },
+  "keywords": [
+    "encryption",
+    "decryption",
+    "aes-256-cbc",
+    "jwt",
+    "express",
+    "mysql"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "axios": "^1.7.9",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.12.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "vite": "^8.3.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

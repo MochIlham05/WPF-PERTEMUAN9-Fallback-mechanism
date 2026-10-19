@@ -1,0 +1,168 @@
+{
+  "info": {
+    "_postman_id": "b195c6c2-48a5-4e7a-9a99-8cf04ef23b09",
+    "name": "UTS WPF - Enkripsi Dekripsi AES-256-CBC REST API",
+    "description": "Koleksi request Postman untuk menguji alur Enkripsi-Dekripsi Server 1, Server 2, DB A, DB B, dan autentikasi JWT.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Server 1 - Ambil Produk Plaintext (db_a)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/produk",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "produk"]
+        },
+        "description": "Mengambil data produk plaintext langsung dari Database A (db_a)."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Server 1 - Tambah Produk Baru ke db_a",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nama_produk\": \"Keyboard Mekanikal RGB\",\n  \"harga_produk\": 750000,\n  \"foto_produk\": \"keyboard_rgb.jpg\",\n  \"id_kategori\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/produk",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "produk"]
+        },
+        "description": "Menambahkan produk baru ke database A (db_a) dalam bentuk plaintext."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Server 1 - Enkripsi (AES-256) & Kirim ke Server 2",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/send-encrypted",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "send-encrypted"]
+        },
+        "description": "Mengambil semua produk dari db_a, mengenkripsi datanya dengan AES-256-CBC, lalu mengirimkannya via HTTP POST ke Server 2 (Port 3002)."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Server 2 - Lihat Ciphertext di db_b",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3002/api/produk/ciphertext",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3002",
+          "path": ["api", "produk", "ciphertext"]
+        },
+        "description": "Memeriksa bukti fisik bahwa data tersimpan di db_b dalam wujud ciphertext (terenkripsi)."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Server 2 - Login & Dapatkan Token JWT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData && jsonData.token) {",
+              "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+              "    console.log('Token JWT otomatis tersimpan ke variabel koleksi:', jsonData.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3002/api/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3002",
+          "path": ["api", "login"]
+        },
+        "description": "Login untuk mendapatkan JWT Token autentikasi."
+      },
+      "response": []
+    },
+    {
+      "name": "6. Server 2 - Ambil Produk (Didekripsi + Proteksi JWT)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3002/api/produk",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3002",
+          "path": ["api", "produk"]
+        },
+        "description": "Mengakses endpoint terproteksi JWT pada Server 2. Server 2 akan mengambil data terenkripsi dari db_b, mendekripsinya dengan AES-256-CBC, lalu mengembalikan plaintext."
+      },
+      "response": []
+    },
+    {
+      "name": "7. Server 2 - Tes Tolak Akses Tanpa JWT (401 Unauthorized)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3002/api/produk",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3002",
+          "path": ["api", "produk"]
+        },
+        "description": "Membuktikan bahwa endpoint /api/produk di Server 2 menolak permintaan jika tidak menyertakan JWT token."
+      },
+      "response": []
+    }
+  ]
+}
